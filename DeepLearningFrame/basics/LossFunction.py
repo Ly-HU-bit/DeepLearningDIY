@@ -68,3 +68,4 @@ class SoftmaxCrossEntropy(Loss):
             raise RuntimeError("forward must be called before backward")
         return (self.probabilities - self.targets) / self.targets.shape[0]
 
+

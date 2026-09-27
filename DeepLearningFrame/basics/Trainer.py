@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 import numpy as np
-import matplotlib.pyplot as plt
+
 
 from .BaseClasses import Loss, Optimizer
 
@@ -39,8 +39,8 @@ class Trainer:
 
     def fit(self, x: np.ndarray, y: np.ndarray) -> list[float]:
         x, y = np.asarray(x), np.asarray(y)
-        if x.ndim != 2:
-            raise ValueError(f"training input must be two-dimensional, got {x.shape}")
+        if x.ndim < 2:
+            raise ValueError(f"training input must be two-dimensional or larger(Convolution), got {x.shape}")
         if len(x) == 0:
             raise ValueError("training data cannot be empty")
         if len(x) != len(y):
@@ -65,5 +65,12 @@ class Trainer:
         return losses
 
     def draw(self,losses:list[float]) :
+        """
+        aims to visualize the training progress.
+        mention that you need  matplotlib
+        :param losses:
+        :return:
+        """
+        import matplotlib.pyplot as plt
         plt.plot(losses)
         plt.show()

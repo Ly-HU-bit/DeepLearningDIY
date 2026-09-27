@@ -6,30 +6,23 @@ from collections.abc import Iterator
 
 import numpy as np
 
-from .BaseClasses import Layer, Loss, Optimizer, Parameter
+from .BaseClasses import Model,Layer, Loss, Optimizer, Parameter
 
 
-class MLP:
+class Sequential(Model):
     """A small sequential model with manually implemented backpropagation."""
 
     def __init__(
         self,
-        epochs: int = 1,
-        batch_size: int = 10,
     ) -> None:
-        if epochs <= 0:
-            raise ValueError("epochs must be positive")
-        if batch_size <= 0:
-            raise ValueError("batch_size must be positive")
         self.layers: list[Layer] = []
         self.loss: Loss | None = None
-        self.epochs = int(epochs)
-        self.batch_size = int(batch_size)
 
     def add_layer(self, layer: Layer) -> None:
         if not isinstance(layer, Layer):
             raise TypeError("layer must be a Layer instance")
         self.layers.append(layer)
+        return layer
 
     def set_loss(self, loss: Loss) -> None:
         if not isinstance(loss, Loss):
@@ -47,7 +40,7 @@ class MLP:
     def forward(self, x: np.ndarray) -> np.ndarray:
         if not self.layers:
             raise ValueError("the network has no layers")
-        output = np.asarray(x, dtype=float)
+        output = np.asarray(x)
         for layer in self.layers:
             output = layer.forward(output)
         return output
@@ -67,8 +60,8 @@ class MLP:
         optimizer: Optimizer,
         *,
         loss: Loss | None = None,
-        epochs: int | None = None,
-        batch_size: int | None = None,
+        epochs: int | None = 1,
+        batch_size: int | None = 10,
         seed: int | None = None,
     ) -> list[float]:
         from .Trainer import Trainer
@@ -80,8 +73,8 @@ class MLP:
             model=self,
             loss=selected_loss,
             optimizer=optimizer,
-            epochs=self.epochs if epochs is None else epochs,
-            batch_size=self.batch_size if batch_size is None else batch_size,
+            epochs= epochs,
+            batch_size= batch_size,
             seed=seed,
         )
         self.loss = selected_loss

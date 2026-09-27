@@ -7,13 +7,14 @@ import numpy as np
 from .BaseClasses import ParameterizedLayer
 
 
-class AffineLayer(ParameterizedLayer):
+class LinearLayer(ParameterizedLayer):
     def __init__(
         self,
         input_size: int,
         output_size: int,
         initializer: str = "xavier",
         rng: np.random.Generator | None = None,
+        has_bias: bool = True,  #为了实现一个纯线性层
     ) -> None:
         super().__init__()
         if input_size <= 0 or output_size <= 0:
@@ -31,7 +32,10 @@ class AffineLayer(ParameterizedLayer):
         self.weight = self.register_parameter(
             generator.standard_normal((input_size, output_size)) * scales[initializer]
         )
-        self.bias = self.register_parameter(np.zeros(output_size))
+        if has_bias: #为了支持word2vec中matmul（纯矩阵乘法的实现）
+          self.bias = self.register_parameter(np.zeros(output_size))
+        else:
+            self.bias = None
         self.input: np.ndarray | None = None
 
     def forward(self, x: np.ndarray) -> np.ndarray:
@@ -41,7 +45,10 @@ class AffineLayer(ParameterizedLayer):
                 f"expected input shape (batch, {self.input_size}), got {x.shape}"
             )
         self.input = x
-        return x @ self.weight.data + self.bias.data
+        if self.bias is not None:
+          return x @ self.weight.data + self.bias.data
+        else:
+            return x @ self.weight.data
 
     def backward(self, grad_output: np.ndarray) -> np.ndarray:
         if self.input is None:
@@ -50,6 +57,7 @@ class AffineLayer(ParameterizedLayer):
         expected = (self.input.shape[0], self.output_size)
         if grad_output.shape != expected:
             raise ValueError(f"expected grad_output shape {expected}, got {grad_output.shape}")
-        self.weight.grad[...] = self.input.T @ grad_output
-        self.bias.grad[...] = np.sum(grad_output, axis=0)
+        self.weight.grad[...] += self.input.T @ grad_output
+        if self.bias is not None:
+         self.bias.grad[...] += np.sum(grad_output, axis=0)
         return grad_output @ self.weight.data.T

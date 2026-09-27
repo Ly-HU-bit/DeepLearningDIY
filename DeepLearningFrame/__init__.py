@@ -1,16 +1,17 @@
 """A compact NumPy-based MLP framework for learning and experimentation."""
 
-from .ActivationFunction import ReLU, Sigmoid, Softmax
-from .AffineLayer import AffineLayer
-from .BaseClasses import Layer, Loss, Optimizer, Parameter, ParameterizedLayer
-from .LossFunction import MSE, SoftmaxCrossEntropy
-from .MLP import MLP
-from .Optimizer import SGD, AdaGrad, Adam, Momentum
-from .Trainer import Trainer
+from .basics.ActivationFunction import ReLU, Sigmoid, Softmax
+from .basics.LinearLayer import LinearLayer
+from .basics.BaseClasses import Layer, Loss, Optimizer, Parameter, ParameterizedLayer,Model
+from .basics.LossFunction import MSE, SoftmaxCrossEntropy
+from .basics.Model import Sequential
+from .basics.Optimizer import SGD, AdaGrad, Adam, Momentum
+from .basics.Trainer import Trainer
+from .basics.Regularization import Dropout
 
 __all__ = [
     "AdaGrad", "Adam", "AffineLayer", "Layer",
-    "Loss", "MLP", "MSE", "Momentum", "Optimizer", "Parameter",
+    "Loss", "Model","Sequential" ,"MSE", "Momentum", "Optimizer", "Parameter",
     "ParameterizedLayer", "ReLU", "SGD", "Sigmoid", "Softmax",
-    "SoftmaxCrossEntropy", "Trainer",
+    "SoftmaxCrossEntropy", "Trainer","Dropout"
 ]
