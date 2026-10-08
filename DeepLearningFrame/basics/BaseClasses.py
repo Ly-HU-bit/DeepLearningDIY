@@ -14,17 +14,17 @@ class Parameter:
     """A trainable array and its gradient."""
 
     data: np.ndarray
-    grad: np.ndarray = field(init=False)
+    grad: np.ndarray
     def __init__(self,data:np.ndarray,grad:np.ndarray | None=None):
+        self.data = np.asarray(data,dtype=float)
         if grad is not None:
             if data.shape != grad.shape:
                 raise ValueError(f"Shape of the grad input:{grad.shape} does not match shape of data:{data.shape}")
-        self.data=data
-        self.grad=grad
+            else:
+                self.grad = np.asarray(grad,dtype=float)
+        else:
+            self.grad=np.zeros_like(self.data)
 
-    def __post_init__(self) -> None:
-        self.data = np.asarray(self.data, dtype=float)
-        self.grad = np.zeros_like(self.data)
     def zero_grad(self) -> None:
         self.grad.fill(0.0)
 

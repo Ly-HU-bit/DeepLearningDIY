@@ -1,5 +1,5 @@
 import numpy as np
-from ..basics.BaseClasses import ParameterizedLayer
+from ..basics.BaseClasses import ParameterizedLayer,Parameter
 from ..basics.LinearLayer import LinearLayer
 
 
@@ -20,7 +20,12 @@ class RNN(ParameterizedLayer):
         self.bias=self.register_parameter(bias)
         self.h=None
 
-
+    def share_parameters(self,weight_x:Parameter,weight_h:Parameter,b:Parameter)->None:
+        if not isinstance(weight_x, Parameter) or not isinstance(weight_h, Parameter) or not isinstance(b, Parameter):
+            raise TypeError("you must pass in Parameter instance to pass in shared parameters")
+        self.weight_x=weight_x
+        self.weight_h=weight_h
+        self.bias=b
 
 
     def forward(self,x:np.ndarray,prev_h:np.ndarray)->np.ndarray:
@@ -41,7 +46,8 @@ class RNN(ParameterizedLayer):
         self.weight_x.grad+=self.x.T@da
         grad_prev_h=da@self.weight_h.data.T
         grad_x=da@self.weight_x.data.T
-        return {"grad_x":grad_x,"grad_prev_h":grad_prev_h}
+        self.grad= {"grad_x":grad_x,"grad_prev_h":grad_prev_h}
+        return self.grad
 
 
 
